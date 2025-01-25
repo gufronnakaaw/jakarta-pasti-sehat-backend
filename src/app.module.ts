@@ -4,7 +4,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { AdminModule } from './admin/admin.module';
 import { AdminsModule } from './admins/admins.module';
 import { AppController } from './app.controller';
-import { GeneralModule } from './general/general.module';
+import { AppService } from './app.service';
+import { PrismaService } from './utils/services/prisma.service';
 
 @Module({
   imports: [
@@ -16,11 +17,10 @@ import { GeneralModule } from './general/general.module';
         expiresIn: '6h',
       },
     }),
-    GeneralModule,
     AdminModule,
     AdminsModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}
