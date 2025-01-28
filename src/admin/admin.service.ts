@@ -1,152 +1,115 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { existsSync } from 'fs';
-import { unlink } from 'fs/promises';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { capitalize, random } from 'lodash';
+import { hashPassword } from '../utils/bcrypt.util';
 import { PrismaService } from '../utils/services/prisma.service';
-import { AdminQuery } from './admin.dto';
+import { CreateAdminDto, UpdateAdminDto } from './admin.dto';
 
 @Injectable()
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
-  async getBanners(query: AdminQuery) {
-    const default_page = 1;
-    const take = 5;
-
-    const page = query.page ? parseInt(query.page) : default_page;
-
-    const skip = (page - 1) * take;
-
-    const [total_banners, banners] = await this.prisma.$transaction([
-      this.prisma.banner.count(),
-      this.prisma.banner.findMany({
-        select: {
-          banner_id: true,
-          alt: true,
-          description: true,
-          image_url: true,
-          created_at: true,
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-        take,
-        skip,
-      }),
-    ]);
-
-    return {
-      banners,
-      page: banners.length ? page : 0,
-      total_banners,
-      total_pages: Math.ceil(total_banners / take),
-    };
-  }
-
-  getBanner(banner_id: string) {
-    return this.prisma.banner.findUnique({
+  getAdmins() {
+    return this.prisma.admin.findMany({
       where: {
-        banner_id,
+        admin_id: {
+          not: 'JPSSA1',
+        },
       },
       select: {
-        banner_id: true,
-        alt: true,
-        description: true,
-        image_url: true,
+        admin_id: true,
+        fullname: true,
+        role: true,
+        created_at: true,
+      },
+      orderBy: {
+        created_at: 'desc',
       },
     });
   }
 
-  async deleteBanner(banner_id: string) {
-    const banner = await this.prisma.banner.findUnique({
-      where: { banner_id },
-      select: { image_url: true },
-    });
-
-    if (!banner) {
-      throw new NotFoundException('Banner tidak ditemukan');
+  async createAdmin(body: CreateAdminDto) {
+    if (body.access_key !== process.env.ACCESS_KEY) {
+      throw new ForbiddenException();
     }
 
-    const pathname = new URL(banner.image_url).pathname;
-    const file_path = pathname.startsWith('/') ? pathname.slice(1) : pathname;
+    const admin_id =
+      body.role === 'superadmin'
+        ? `JPSSA${random(1000, 9999)}`
+        : `JPSA${random(10000, 99999)}`;
 
-    if (existsSync(file_path)) {
-      await unlink(file_path);
-    }
-
-    return this.prisma.banner.delete({
-      where: { banner_id },
-      select: { banner_id: true },
-    });
-  }
-
-  async getPartners(query: AdminQuery) {
-    const default_page = 1;
-    const take = 5;
-
-    const page = query.page ? parseInt(query.page) : default_page;
-
-    const skip = (page - 1) * take;
-
-    const [total_partners, partners] = await this.prisma.$transaction([
-      this.prisma.partner.count(),
-      this.prisma.partner.findMany({
-        select: {
-          partner_id: true,
-          alt: true,
-          description: true,
-          image_url: true,
-          created_at: true,
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-        take,
-        skip,
-      }),
-    ]);
-
-    return {
-      partners,
-      page: partners.length ? page : 0,
-      total_partners,
-      total_pages: Math.ceil(total_partners / take),
-    };
-  }
-
-  getPartner(partner_id: string) {
-    return this.prisma.partner.findUnique({
-      where: {
-        partner_id,
+    return this.prisma.admin.create({
+      data: {
+        admin_id,
+        fullname: capitalize(body.fullname.toLowerCase()),
+        password: await hashPassword(body.password),
+        role: body.role,
       },
       select: {
-        partner_id: true,
-        alt: true,
-        description: true,
-        image_url: true,
+        admin_id: true,
+        fullname: true,
+        role: true,
       },
     });
   }
 
-  async deletePartner(partner_id: string) {
-    const partner = await this.prisma.partner.findUnique({
-      where: { partner_id },
-      select: { image_url: true },
+  async updateAdmin(body: UpdateAdminDto) {
+    if (body.access_key !== process.env.ACCESS_KEY) {
+      throw new ForbiddenException();
+    }
+
+    if (
+      !(await this.prisma.admin.count({ where: { admin_id: body.admin_id } }))
+    ) {
+      throw new NotFoundException('Admin tidak ditemukan');
+    }
+
+    return this.prisma.admin.update({
+      where: {
+        admin_id: body.admin_id,
+      },
+      data: {
+        fullname: capitalize(body.fullname.toLowerCase()),
+        password: body.password ? await hashPassword(body.password) : undefined,
+        role: body.role,
+      },
+      select: {
+        admin_id: true,
+        fullname: true,
+        role: true,
+      },
     });
+  }
 
-    if (!partner) {
-      throw new NotFoundException('Mitra tidak ditemukan');
+  async deleteAdmin(admin_id: string) {
+    if (!(await this.prisma.admin.count({ where: { admin_id } }))) {
+      throw new NotFoundException('Admin tidak ditemukan');
     }
 
-    const pathname = new URL(partner.image_url).pathname;
-    const file_path = pathname.startsWith('/') ? pathname.slice(1) : pathname;
+    return this.prisma.admin.delete({
+      where: {
+        admin_id,
+      },
+      select: {
+        fullname: true,
+        admin_id: true,
+      },
+    });
+  }
 
-    if (existsSync(file_path)) {
-      await unlink(file_path);
-    }
-
-    return this.prisma.partner.delete({
-      where: { partner_id },
-      select: { partner_id: true },
+  getAdmin(admin_id: string) {
+    return this.prisma.admin.findUnique({
+      where: {
+        admin_id,
+      },
+      select: {
+        admin_id: true,
+        fullname: true,
+        role: true,
+      },
     });
   }
 }

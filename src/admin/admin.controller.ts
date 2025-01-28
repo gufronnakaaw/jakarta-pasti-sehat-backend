@@ -1,106 +1,102 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
-  Query,
+  Patch,
+  Post,
+  UseGuards,
+  UsePipes,
 } from '@nestjs/common';
-import { SuccessResponse } from 'src/utils/global/global.response';
-import { AdminQuery } from './admin.dto';
+import { SuccessResponse } from '../utils/global/global.response';
+import { SuperAdminGuard } from '../utils/guards/superadmin.guard';
+import { ZodValidationPipe } from '../utils/pipes/zod.pipe';
+import {
+  CreateAdminDto,
+  createAdminSchema,
+  UpdateAdminDto,
+  updateAdminSchema,
+} from './admin.dto';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
+@UseGuards(SuperAdminGuard)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Get('/banners')
+  @Get()
   @HttpCode(HttpStatus.OK)
-  async getBanners(@Query() query: AdminQuery): Promise<SuccessResponse> {
+  async getAdmins(): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.adminService.getBanners(query),
+        data: await this.adminService.getAdmins(),
       };
     } catch (error) {
       throw error;
     }
   }
 
-  @Get('/banners/:banner_id')
+  @Get(':admin_id')
   @HttpCode(HttpStatus.OK)
-  async getBanner(
-    @Param('banner_id') banner_id: string,
+  async getAdmin(
+    @Param('admin_id') admin_id: string,
   ): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.adminService.getBanner(banner_id),
+        data: await this.adminService.getAdmin(admin_id),
       };
     } catch (error) {
       throw error;
     }
   }
 
-  @Delete('/banners/:banner_id')
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ZodValidationPipe(createAdminSchema))
+  async adminsRegister(@Body() body: CreateAdminDto): Promise<SuccessResponse> {
+    try {
+      return {
+        success: true,
+        status_code: HttpStatus.CREATED,
+        data: await this.adminService.createAdmin(body),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch()
   @HttpCode(HttpStatus.OK)
-  async deleteBanner(
-    @Param('banner_id') banner_id: string,
+  @UsePipes(new ZodValidationPipe(updateAdminSchema))
+  async updatePrograms(@Body() body: UpdateAdminDto): Promise<SuccessResponse> {
+    try {
+      return {
+        success: true,
+        status_code: HttpStatus.OK,
+        data: await this.adminService.updateAdmin(body),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Delete(':admin_id')
+  @HttpCode(HttpStatus.OK)
+  async deleteAdmins(
+    @Param('admin_id') admin_id: string,
   ): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.adminService.deleteBanner(banner_id),
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @Get('/partners')
-  @HttpCode(HttpStatus.OK)
-  async getPartners(@Query() query: AdminQuery): Promise<SuccessResponse> {
-    try {
-      return {
-        success: true,
-        status_code: HttpStatus.OK,
-        data: await this.adminService.getPartners(query),
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @Get('/partners/:partner_id')
-  @HttpCode(HttpStatus.OK)
-  async getPartner(
-    @Param('partner_id') partner_id: string,
-  ): Promise<SuccessResponse> {
-    try {
-      return {
-        success: true,
-        status_code: HttpStatus.OK,
-        data: await this.adminService.getPartner(partner_id),
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @Delete('/partners/:partner_id')
-  @HttpCode(HttpStatus.OK)
-  async deletePartner(
-    @Param('partner_id') partner_id: string,
-  ): Promise<SuccessResponse> {
-    try {
-      return {
-        success: true,
-        status_code: HttpStatus.OK,
-        data: await this.adminService.deletePartner(partner_id),
+        data: await this.adminService.deleteAdmin(admin_id),
       };
     } catch (error) {
       throw error;
