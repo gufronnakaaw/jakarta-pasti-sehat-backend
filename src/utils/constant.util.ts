@@ -8,6 +8,8 @@ export const PREFIX = {
   CAREER: 'JPSCRR',
   EVENT: 'JPSEVT',
   ADMIN: 'JPSADM',
+  PILLAR: 'JPSPLR',
+  SUBPILLAR: 'JPSSPLR',
 };
 
 export const EDUCATIONORDER: Record<string, number> = {
