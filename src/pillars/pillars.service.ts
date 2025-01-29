@@ -102,6 +102,7 @@ export class PillarsService {
       name: pillar.name,
       created_at: pillar.created_at,
       subpillars: pillar.subpillar,
+      can_delete: !Boolean(pillar.subpillar.length),
     };
   }
 
@@ -213,6 +214,21 @@ export class PillarsService {
       },
       select: {
         pillar_id: true,
+      },
+    });
+  }
+
+  async deleteSubPillar(sub_pillar_id: string) {
+    if (!(await this.prisma.subPillar.count({ where: { sub_pillar_id } }))) {
+      throw new NotFoundException('Sub pilar tidak ditemukan');
+    }
+
+    return this.prisma.subPillar.delete({
+      where: {
+        sub_pillar_id,
+      },
+      select: {
+        sub_pillar_id: true,
       },
     });
   }

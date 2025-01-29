@@ -73,13 +73,13 @@ export class PillarsController {
 
   @UseGuards(AdminGuard)
   @Post()
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ZodValidationPipe(createPillarSchema))
   async createPillar(@Body() body: CreatePillarDto): Promise<SuccessResponse> {
     try {
       return {
         success: true,
-        status_code: HttpStatus.OK,
+        status_code: HttpStatus.CREATED,
         data: await this.pillarsService.createPillar(body),
       };
     } catch (error) {
@@ -114,6 +114,23 @@ export class PillarsController {
         success: true,
         status_code: HttpStatus.OK,
         data: await this.pillarsService.deletePillar(pillar_id),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Delete('/subpillar/:sub_pillar_id')
+  @HttpCode(HttpStatus.OK)
+  async deleteSubPillar(
+    @Param('sub_pillar_id') sub_pillar_id: string,
+  ): Promise<SuccessResponse> {
+    try {
+      return {
+        success: true,
+        status_code: HttpStatus.OK,
+        data: await this.pillarsService.deleteSubPillar(sub_pillar_id),
       };
     } catch (error) {
       throw error;
