@@ -5,10 +5,11 @@ import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BannersModule } from './banners/banners.module';
-import { PartnersModule } from './partners/partners.module';
-import { PrismaService } from './utils/services/prisma.service';
-import { PillarsModule } from './pillars/pillars.module';
 import { KeysModule } from './keys/keys.module';
+import { PartnersModule } from './partners/partners.module';
+import { PillarsModule } from './pillars/pillars.module';
+import { PositionsModule } from './positions/positions.module';
+import { PrismaService } from './utils/services/prisma.service';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { KeysModule } from './keys/keys.module';
     PartnersModule,
     PillarsModule,
     KeysModule,
+    PositionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

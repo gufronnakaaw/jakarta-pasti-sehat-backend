@@ -11,6 +11,7 @@ export const PREFIX = {
   PILLAR: 'JPSPLR',
   SUBPILLAR: 'JPSSPLR',
   KEY: 'JPSKEY',
+  POSITION: 'JPSPOS',
 };
 
 export const EDUCATIONORDER: Record<string, number> = {
