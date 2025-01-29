@@ -13,10 +13,10 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { SuccessResponse } from 'src/utils/global/global.response';
-import { PublicGuard } from 'src/utils/guards/public.guard';
-import { ZodValidationPipe } from 'src/utils/pipes/zod.pipe';
+import { SuccessResponse } from '../utils/global/global.response';
 import { AdminGuard } from '../utils/guards/admin.guard';
+import { PublicGuard } from '../utils/guards/public.guard';
+import { ZodValidationPipe } from '../utils/pipes/zod.pipe';
 import {
   CreatePillarDto,
   createPillarSchema,

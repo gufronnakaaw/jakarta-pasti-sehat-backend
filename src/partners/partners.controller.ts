@@ -17,10 +17,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ZodInterceptor } from 'src/utils/interceptors/zod.interceptor';
 import { SuccessResponse } from '../utils/global/global.response';
 import { AdminGuard } from '../utils/guards/admin.guard';
 import { PublicGuard } from '../utils/guards/public.guard';
+import { ZodInterceptor } from '../utils/interceptors/zod.interceptor';
 import {
   CreatePartnerDto,
   createPartnerSchema,
