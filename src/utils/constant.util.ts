@@ -10,6 +10,7 @@ export const PREFIX = {
   ADMIN: 'JPSADM',
   PILLAR: 'JPSPLR',
   SUBPILLAR: 'JPSSPLR',
+  KEY: 'JPSKEY',
 };
 
 export const EDUCATIONORDER: Record<string, number> = {

@@ -8,6 +8,7 @@ import { BannersModule } from './banners/banners.module';
 import { PartnersModule } from './partners/partners.module';
 import { PrismaService } from './utils/services/prisma.service';
 import { PillarsModule } from './pillars/pillars.module';
+import { KeysModule } from './keys/keys.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PillarsModule } from './pillars/pillars.module';
     BannersModule,
     PartnersModule,
     PillarsModule,
+    KeysModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
