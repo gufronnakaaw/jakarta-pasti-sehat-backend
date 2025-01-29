@@ -82,7 +82,7 @@ export class PartnersController {
     FileInterceptor('partner'),
     new ZodInterceptor(createPartnerSchema),
   )
-  async createBanner(
+  async createPartner(
     @Body() body: CreatePartnerDto,
     @UploadedFile(
       new ParseFilePipe({

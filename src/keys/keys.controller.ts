@@ -52,7 +52,7 @@ export class KeysController {
 
   @Delete(':access_key_id/:access_key')
   @HttpCode(HttpStatus.OK)
-  async createPillar(
+  async deleteKey(
     @Param() params: { access_key_id: string; access_key: string },
   ): Promise<SuccessResponse> {
     try {
