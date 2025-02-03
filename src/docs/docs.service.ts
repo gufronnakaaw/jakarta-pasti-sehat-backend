@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { random } from 'lodash';
-import { PREFIX } from 'src/utils/constant.util';
+import { PREFIX } from '../utils/constant.util';
 import { PrismaService } from '../utils/services/prisma.service';
 import { StorageService } from '../utils/services/storage.service';
 import { CreateDocDto, DocsQuery, UpdateDocDto } from './docs.dto';
