@@ -6,3 +6,227 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+enum AdminRole {
+  admin
+  superadmin
+}
+
+enum EducationLevel {
+  TK
+  SD
+  SMP
+  SMA
+  SMK
+  D1
+  D2
+  D3
+  D4
+  S1
+  S2
+  S3
+}
+
+enum SocialMediaName {
+  TIKTOK
+  YOUTUBE
+  INSTAGRAM
+  LINKEDIN
+}
+
+model Admin {
+  id               Int              @id               @default(autoincrement())
+  admin_id         String           @unique
+  fullname         String         
+  password         String
+  role             AdminRole
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  @@map("admin")
+}
+
+model AccessKey {
+  id               Int              @id               @default(autoincrement())
+  access_key_id    String           @unique
+  value            String
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  @@map("access_key")
+}
+
+model Banner {
+  id               Int              @id               @default(autoincrement())
+  banner_id        String           @unique
+  image_url        String
+  image_key        String
+  alt              String
+  description      String?
+  link             String?
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  @@map("banner")
+}
+
+model Partner {
+  id               Int              @id               @default(autoincrement())
+  partner_id       String           @unique
+  image_url        String
+  image_key        String
+  alt              String
+  description      String?
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  @@map("partner")
+}
+
+model Position {
+  id               Int              @id               @default(autoincrement())
+  position_id      String           @unique
+  name             String
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  team             Team[]
+
+  @@map("position")
+}
+
+model Team {
+  id               Int              @id               @default(autoincrement())
+  team_id          String           @unique
+  position_id      String
+  image_url        String
+  image_key        String
+  fullname         String
+  description      String
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  education        Education[]
+  socmed           SocialMedia[]
+  position         Position         @relation(fields: [position_id], references: [position_id])
+
+  @@map("team")
+}
+
+model Education {
+  id               Int              @id               @default(autoincrement())
+  education_id     String           @unique
+  team_id          String?
+  name             String
+  level            EducationLevel
+  order            Int
+  
+  team             Team?            @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+
+  @@map("education")
+}
+
+model SocialMedia {
+  id               Int              @id               @default(autoincrement())
+  socmed_id        String           @unique
+  team_id          String?
+  name             SocialMediaName
+  url              String
+  order            Int
+
+  team             Team?            @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+
+  @@map("social_media")
+}
+
+model Pillar {
+  id               Int              @id               @default(autoincrement())
+  pillar_id        String           @unique
+  slug             String           @unique
+  name             String
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  subpillar        SubPillar[]
+  doc              Documentation[]
+
+  @@map("pillar")
+}
+
+model SubPillar {
+  id               Int              @id               @default(autoincrement())
+  sub_pillar_id    String           @unique
+  slug             String           @unique
+  pillar_id        String           
+  name             String
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  pillar           Pillar           @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
+  doc              Documentation[]
+
+  @@map("sub_pillar")
+}
+
+model Documentation {
+  id               Int              @id               @default(autoincrement())
+  doc_id           String           @unique
+  pillar_id        String           
+  sub_pillar_id    String           
+  title            String
+  thumbnail_url    String
+  thumbnail_key    String
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  docimg           DocumentationImage[]
+  pillar           Pillar           @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
+  subpillar        SubPillar        @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
+
+  @@map("documentation")
+}
+
+model DocumentationImage {
+  id               Int              @id               @default(autoincrement())
+  doc_image_id     String           @unique
+  doc_id           String           
+  image_url        String
+  image_key        String
+
+  doc              Documentation    @relation(fields: [doc_id], references: [doc_id], onDelete: Cascade)
+
+  @@map("documentation_image")
+}
