@@ -10,6 +10,7 @@ import { PartnersModule } from './partners/partners.module';
 import { PillarsModule } from './pillars/pillars.module';
 import { PositionsModule } from './positions/positions.module';
 import { PrismaService } from './utils/services/prisma.service';
+import { DocsModule } from './docs/docs.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PrismaService } from './utils/services/prisma.service';
     PillarsModule,
     KeysModule,
     PositionsModule,
+    DocsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
