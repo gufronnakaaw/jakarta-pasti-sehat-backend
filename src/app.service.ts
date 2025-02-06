@@ -78,4 +78,13 @@ export class AppService {
       }),
     };
   }
+
+  getDashboard() {
+    return {
+      total_volunteers: 0,
+      total_events: 0,
+      total_articles: 0,
+      total_applicants: 0,
+    };
+  }
 }
