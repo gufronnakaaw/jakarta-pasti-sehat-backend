@@ -17,6 +17,7 @@ export class PublicGuard implements CanActivate {
     const role = request.headers['x-role'];
 
     if (role !== 'admin') {
+      request['xrole'] = 'public';
       return true;
     }
 
@@ -27,6 +28,7 @@ export class PublicGuard implements CanActivate {
 
       if (payload.role == 'admin' || payload.role == 'superadmin') {
         request['admin'] = payload;
+        request['xrole'] = 'admin';
         return true;
       }
 
