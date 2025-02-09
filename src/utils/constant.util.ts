@@ -13,6 +13,8 @@ export const PREFIX = {
   SUBPILLAR: 'JPSSPLR',
   KEY: 'JPSKEY',
   POSITION: 'JPSPOS',
+  EDUCATION: 'JPSEDU',
+  SOCIAL_MEDIA: 'JPSSOC',
 };
 
 export const EDUCATIONORDER: Record<string, number> = {
