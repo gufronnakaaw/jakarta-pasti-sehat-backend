@@ -5,11 +5,13 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { AdminLoginDto, adminLoginSchema } from './app.dto';
 import { AppService } from './app.service';
 import { SuccessResponse } from './utils/global/global.response';
+import { AdminGuard } from './utils/guards/admin.guard';
 import { ZodValidationPipe } from './utils/pipes/zod.pipe';
 
 @Controller()
@@ -49,6 +51,21 @@ export class AppController {
         success: true,
         status_code: HttpStatus.OK,
         data: await this.appService.adminLogin(body),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Get('/dashboard')
+  @HttpCode(HttpStatus.OK)
+  async getDashboard(): Promise<SuccessResponse> {
+    try {
+      return {
+        success: true,
+        status_code: HttpStatus.OK,
+        data: await this.appService.getDashboard(),
       };
     } catch (error) {
       throw error;
