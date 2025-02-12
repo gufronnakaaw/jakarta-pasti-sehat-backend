@@ -60,7 +60,7 @@ export class AdminController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(new ZodValidationPipe(createAdminSchema))
-  async adminsRegister(@Body() body: CreateAdminDto): Promise<SuccessResponse> {
+  async createAdmin(@Body() body: CreateAdminDto): Promise<SuccessResponse> {
     try {
       return {
         success: true,
@@ -75,7 +75,7 @@ export class AdminController {
   @Patch()
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ZodValidationPipe(updateAdminSchema))
-  async updatePrograms(@Body() body: UpdateAdminDto): Promise<SuccessResponse> {
+  async updateAdmin(@Body() body: UpdateAdminDto): Promise<SuccessResponse> {
     try {
       return {
         success: true,
@@ -89,7 +89,7 @@ export class AdminController {
 
   @Delete(':admin_id')
   @HttpCode(HttpStatus.OK)
-  async deleteAdmins(
+  async deleteAdmin(
     @Param('admin_id') admin_id: string,
   ): Promise<SuccessResponse> {
     try {
