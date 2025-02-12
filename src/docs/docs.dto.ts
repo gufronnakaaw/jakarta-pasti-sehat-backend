@@ -21,6 +21,7 @@ export const updateDocSchema = z.object({
   sub_pillar_id: z.string().optional(),
   title: z.string().optional(),
   by: z.string(),
+  is_active: z.boolean().optional(),
 });
 
 export type UpdateDocDto = z.infer<typeof updateDocSchema>;

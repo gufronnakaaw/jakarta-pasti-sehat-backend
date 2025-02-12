@@ -65,15 +65,17 @@ export class DocsController {
     }
   }
 
-  @UseGuards(AdminGuard)
-  @Get(':doc_id')
+  @UseGuards(PublicGuard)
+  @Get(':id_or_slug')
   @HttpCode(HttpStatus.OK)
-  async getDoc(@Param('doc_id') doc_id: string): Promise<SuccessResponse> {
+  async getDoc(
+    @Param('id_or_slug') id_or_slug: string,
+  ): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.docsService.getDoc(doc_id),
+        data: await this.docsService.getDoc(id_or_slug),
       };
     } catch (error) {
       throw error;

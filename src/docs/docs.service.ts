@@ -3,6 +3,7 @@ import { random } from 'lodash';
 import { PREFIX } from '../utils/constant.util';
 import { PrismaService } from '../utils/services/prisma.service';
 import { StorageService } from '../utils/services/storage.service';
+import { slug } from '../utils/string.util';
 import { CreateDocDto, DocsQuery, UpdateDocDto } from './docs.dto';
 
 @Injectable()
@@ -23,6 +24,7 @@ export class DocsService {
     const [total_docs, docs] = await this.prisma.$transaction([
       this.prisma.documentation.count({
         where: {
+          is_active: true,
           OR: [
             {
               pillar: {
@@ -43,6 +45,7 @@ export class DocsService {
       }),
       this.prisma.documentation.findMany({
         where: {
+          is_active: true,
           OR: [
             {
               pillar: {
@@ -62,25 +65,18 @@ export class DocsService {
         },
         select: {
           doc_id: true,
+          slug: true,
           title: true,
           thumbnail_url: true,
           created_at: true,
           pillar: {
             select: {
               name: true,
-              slug: true,
             },
           },
           subpillar: {
             select: {
               name: true,
-              slug: true,
-            },
-          },
-          docimg: {
-            select: {
-              doc_image_id: true,
-              image_url: true,
             },
           },
         },
@@ -93,16 +89,7 @@ export class DocsService {
     ]);
 
     return {
-      docs: docs.map((doc) => {
-        const { docimg, ...all } = doc;
-
-        delete doc.docimg;
-
-        return {
-          ...all,
-          doc_images: docimg,
-        };
-      }),
+      docs,
       page: docs.length ? page : 0,
       total_docs,
       total_pages: Math.ceil(total_docs / take),
@@ -122,25 +109,19 @@ export class DocsService {
       this.prisma.documentation.findMany({
         select: {
           doc_id: true,
+          slug: true,
           title: true,
           thumbnail_url: true,
           created_at: true,
+          is_active: true,
           pillar: {
             select: {
               name: true,
-              slug: true,
             },
           },
           subpillar: {
             select: {
               name: true,
-              slug: true,
-            },
-          },
-          docimg: {
-            select: {
-              doc_image_id: true,
-              image_url: true,
             },
           },
         },
@@ -153,30 +134,29 @@ export class DocsService {
     ]);
 
     return {
-      docs: docs.map((doc) => {
-        const { docimg, ...all } = doc;
-
-        delete doc.docimg;
-
-        return {
-          ...all,
-          doc_images: docimg,
-        };
-      }),
+      docs,
       page: docs.length ? page : 0,
       total_docs,
       total_pages: Math.ceil(total_docs / take),
     };
   }
 
-  async getDoc(doc_id: string) {
-    const doc = await this.prisma.documentation.findUnique({
+  async getDoc(id_or_slug: string) {
+    const doc = await this.prisma.documentation.findFirst({
       where: {
-        doc_id,
+        OR: [
+          {
+            doc_id: id_or_slug,
+          },
+          {
+            slug: id_or_slug,
+          },
+        ],
       },
       select: {
         doc_id: true,
         title: true,
+        slug: true,
         thumbnail_url: true,
         created_at: true,
         pillar: {
@@ -231,6 +211,7 @@ export class DocsService {
     await this.prisma.documentation.create({
       data: {
         doc_id,
+        slug: slug(body.title),
         title: body.title,
         thumbnail_url: url,
         thumbnail_key: key,
@@ -279,11 +260,13 @@ export class DocsService {
         },
         data: {
           title: body.title,
+          slug: body.title ? slug(body.title) : undefined,
           pillar_id: body.pillar_id,
           sub_pillar_id: body.sub_pillar_id,
           thumbnail_url: url,
           thumbnail_key: key,
           updated_by: body.by,
+          is_active: body.is_active,
         },
         select: {
           doc_id: true,
@@ -297,9 +280,11 @@ export class DocsService {
       },
       data: {
         title: body.title,
+        slug: body.title ? slug(body.title) : undefined,
         pillar_id: body.pillar_id,
         sub_pillar_id: body.sub_pillar_id,
         updated_by: body.by,
+        is_active: body.is_active,
       },
       select: {
         doc_id: true,
