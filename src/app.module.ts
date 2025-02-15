@@ -13,6 +13,7 @@ import { PositionsModule } from './positions/positions.module';
 import { TeamsModule } from './teams/teams.module';
 import { PrismaService } from './utils/services/prisma.service';
 import { VolunteersModule } from './volunteers/volunteers.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { VolunteersModule } from './volunteers/volunteers.module';
     DocsModule,
     TeamsModule,
     VolunteersModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
