@@ -27,3 +27,13 @@ export function slug(text: string) {
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-');
 }
+
+export function getStatus(start: Date, end: Date) {
+  const now = new Date();
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  if (now < startDate) return 'Belum dimulai';
+  if (now >= startDate && now <= endDate) return 'Berlangsung';
+  return 'Berakhir';
+}
