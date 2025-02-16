@@ -34,6 +34,11 @@ enum SocialMediaName {
   LINKEDIN
 }
 
+enum EventType {
+  free
+  paid
+}
+
 model Admin {
   id               Int              @id               @default(autoincrement())
   admin_id         String           @unique
@@ -174,6 +179,9 @@ model Pillar {
 
   subpillar        SubPillar[]
   doc              Documentation[]
+  event            Event[]
+  article          Article[]
+  volunteer        Volunteer[]
 
   @@map("pillar")
 }
@@ -193,6 +201,9 @@ model SubPillar {
 
   pillar           Pillar           @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
   doc              Documentation[]
+  event            Event[]
+  article          Article[]
+  volunteer        Volunteer[]
 
   @@map("sub_pillar")
 }
@@ -200,11 +211,13 @@ model SubPillar {
 model Documentation {
   id               Int              @id               @default(autoincrement())
   doc_id           String           @unique
+  slug             String           @unique           
   pillar_id        String           
   sub_pillar_id    String           
   title            String
   thumbnail_url    String
   thumbnail_key    String
+  is_active        Boolean          @default(true)
 
   created_by       String         
   updated_by       String
@@ -229,4 +242,110 @@ model DocumentationImage {
   doc              Documentation    @relation(fields: [doc_id], references: [doc_id], onDelete: Cascade)
 
   @@map("documentation_image")
+}
+
+model Event {
+  id               Int              @id               @default(autoincrement())
+  event_id         String           @unique
+  slug             String           @unique
+  pillar_id        String?           
+  sub_pillar_id    String? 
+  title            String
+  start            DateTime
+  end              DateTime
+  image_url        String
+  image_key        String
+  detail           String           @db.Text
+  type             EventType
+  location         String
+  map_url          String?
+  payment_url      String?
+  is_active        Boolean          @default(true)
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  
+  pillar           Pillar?          @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
+  subpillar        SubPillar?       @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
+
+  @@map("event")
+}
+
+model Article {
+  id               Int              @id               @default(autoincrement())
+  article_id       String           @unique
+  slug             String           @unique
+  pillar_id        String?           
+  sub_pillar_id    String? 
+  title            String
+  description      String
+  content          String           @db.Text
+  image_url        String
+  image_key        String
+  is_active        Boolean          @default(true)
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  pillar           Pillar?          @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
+  subpillar        SubPillar?       @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
+
+  @@map("article")
+}
+
+
+model Volunteer {
+  id               Int              @id               @default(autoincrement())
+  volunteer_id     String           @unique
+  slug             String           @unique
+  pillar_id        String?           
+  sub_pillar_id    String? 
+  title            String
+  requirements     String           @db.Text
+  responsibilities String?          @db.Text
+  is_active        Boolean          @default(true)
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  pillar           Pillar?          @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
+  subpillar        SubPillar?       @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
+
+  volappl         VolunteerApplicant[]
+
+  @@map("volunteer")
+}
+
+model VolunteerApplicant {
+  id               Int              @id               @default(autoincrement())
+  vol_appl_id      String           @unique
+  volunteer_id     String           
+  fullname         String
+  email            String
+  institution      String
+  level            EducationLevel
+  study_program    String
+  reason           String
+  cv_url           String
+  cv_key           String
+  follow_url       String
+  follow_key       String
+  is_approved      Boolean          @default(false)
+  approved_by      String?
+
+  uploaded_at      DateTime         @default(now())
+
+  volunteer        Volunteer        @relation(fields: [volunteer_id], references: [volunteer_id], onDelete: Cascade)
+
+  @@map("volunteer_applicant")
 }

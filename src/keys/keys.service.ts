@@ -29,7 +29,7 @@ export class KeysService {
     return keys.map((key) => {
       return {
         ...key,
-        value: decryptText(key.value, process.env.ACCESS_KEY),
+        value: decryptText(key.value, process.env.ENCRYPT_KEY),
       };
     });
   }
@@ -42,7 +42,7 @@ export class KeysService {
     return this.prisma.accessKey.create({
       data: {
         access_key_id: `${PREFIX['KEY']}${random(1000, 9999)}`,
-        value: encryptText(body.value, process.env.ACCESS_KEY),
+        value: encryptText(body.value, process.env.ENCRYPT_KEY),
         created_by: body.by,
         updated_by: body.by,
       },

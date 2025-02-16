@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AdminLoginDto } from './app.dto';
 import { verifyPassword } from './utils/bcrypt.util';
+import { decryptText } from './utils/encrypt.util';
 import { PrismaService } from './utils/services/prisma.service';
 
 @Injectable()
@@ -49,6 +50,20 @@ export class AppService {
   }
 
   async adminLogin(body: AdminLoginDto) {
+    const keys = await this.prisma.accessKey.findMany({
+      select: {
+        value: true,
+      },
+    });
+
+    if (
+      !keys
+        .map((key) => decryptText(key.value, process.env.ENCRYPT_KEY))
+        .includes(body.access_key)
+    ) {
+      throw new BadRequestException('Akses key salah');
+    }
+
     const admin = await this.prisma.admin.findUnique({
       where: {
         admin_id: body.admin_id,
