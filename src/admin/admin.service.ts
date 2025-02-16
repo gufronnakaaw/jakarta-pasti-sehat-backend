@@ -3,9 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { capitalize, random } from 'lodash';
+import { random } from 'lodash';
 import { hashPassword } from '../utils/bcrypt.util';
 import { PrismaService } from '../utils/services/prisma.service';
+import { capitalize } from '../utils/string.util';
 import { CreateAdminDto, UpdateAdminDto } from './admin.dto';
 
 @Injectable()
