@@ -83,6 +83,7 @@ export class AppService {
         }),
         this.prisma.team.findMany({
           select: {
+            team_id: true,
             fullname: true,
             image_url: true,
             position: {
