@@ -94,12 +94,28 @@ export class AppService {
     };
   }
 
-  getDashboard() {
+  async getDashboard() {
+    const [
+      total_articles,
+      total_events,
+      total_volunteers,
+      total_partners,
+      total_volappls,
+    ] = await this.prisma.$transaction([
+      this.prisma.article.count(),
+      this.prisma.event.count(),
+      this.prisma.volunteer.count(),
+      this.prisma.partner.count(),
+      this.prisma.volunteerApplicant.count(),
+    ]);
+
     return {
-      total_volunteers: 0,
-      total_events: 0,
-      total_articles: 0,
-      total_applicants: 0,
+      total_articles,
+      total_events,
+      total_volunteers,
+      total_partners,
+      total_volappls,
+      total_crrappls: 0,
     };
   }
 }
