@@ -266,7 +266,11 @@ export class DocsService {
           thumbnail_url: url,
           thumbnail_key: key,
           updated_by: body.by,
-          is_active: body.is_active,
+          is_active: body.is_active
+            ? body.is_active === 'true'
+              ? true
+              : false
+            : undefined,
         },
         select: {
           doc_id: true,
@@ -284,7 +288,11 @@ export class DocsService {
         pillar_id: body.pillar_id,
         sub_pillar_id: body.sub_pillar_id,
         updated_by: body.by,
-        is_active: body.is_active,
+        is_active: body.is_active
+          ? body.is_active === 'true'
+            ? true
+            : false
+          : undefined,
       },
       select: {
         doc_id: true,

@@ -150,7 +150,7 @@ export class EventsController {
   @UseGuards(AdminGuard)
   @Delete(':event_id')
   @HttpCode(HttpStatus.OK)
-  async deleteVol(
+  async deleteEvent(
     @Param('event_id') event_id: string,
   ): Promise<SuccessResponse> {
     try {

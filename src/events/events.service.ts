@@ -373,7 +373,11 @@ export class EventsService {
           map_url: body.map_url,
           payment_url: body.payment_url,
           type: body.type,
-          is_active: body.is_active === 'true' ? true : false,
+          is_active: body.is_active
+            ? body.is_active === 'true'
+              ? true
+              : false
+            : undefined,
           updated_by: body.by,
         },
         select: {
@@ -398,7 +402,11 @@ export class EventsService {
         map_url: body.map_url,
         payment_url: body.payment_url,
         type: body.type,
-        is_active: body.is_active === 'true' ? true : false,
+        is_active: body.is_active
+          ? body.is_active === 'true'
+            ? true
+            : false
+          : undefined,
         updated_by: body.by,
       },
       select: {
