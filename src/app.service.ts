@@ -4,12 +4,14 @@ import { AdminLoginDto } from './app.dto';
 import { verifyPassword } from './utils/bcrypt.util';
 import { decryptText } from './utils/encrypt.util';
 import { PrismaService } from './utils/services/prisma.service';
+import { StorageService } from './utils/services/storage.service';
 
 @Injectable()
 export class AppService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private storage: StorageService,
   ) {}
 
   async getHomepageData() {
@@ -117,5 +119,14 @@ export class AppService {
       total_volappls,
       total_crrappls: 0,
     };
+  }
+
+  uploadContentImage(file: Express.Multer.File) {
+    return this.storage.uploadFile({
+      buffer: file.buffer,
+      bucket: 'jakartapastisehat',
+      key: `contents/${Date.now()}-contents-${file.originalname}`,
+      mimetype: file.mimetype,
+    });
   }
 }
