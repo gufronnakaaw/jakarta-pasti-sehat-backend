@@ -5,6 +5,7 @@ import { verifyPassword } from './utils/bcrypt.util';
 import { decryptText } from './utils/encrypt.util';
 import { PrismaService } from './utils/services/prisma.service';
 import { StorageService } from './utils/services/storage.service';
+import { getReadingTimeFromHTML, getStatus } from './utils/string.util';
 
 @Injectable()
 export class AppService {
@@ -15,40 +16,122 @@ export class AppService {
   ) {}
 
   async getHomepageData() {
-    const [banners, partners] = await Promise.all([
-      this.getBanners(),
-      this.getPartners(),
-    ]);
+    const [articles, banners, events, teams, partners] =
+      await this.prisma.$transaction([
+        this.prisma.article.findMany({
+          where: {
+            is_active: true,
+          },
+          select: {
+            article_id: true,
+            slug: true,
+            pillar: {
+              select: {
+                name: true,
+              },
+            },
+            subpillar: {
+              select: {
+                name: true,
+              },
+            },
+            content: true,
+            title: true,
+            description: true,
+            image_url: true,
+            created_at: true,
+          },
+          take: 4,
+          orderBy: {
+            created_at: 'desc',
+          },
+        }),
+        this.prisma.banner.findMany({
+          select: {
+            banner_id: true,
+            alt: true,
+            description: true,
+            image_url: true,
+          },
+        }),
+        this.prisma.event.findMany({
+          where: {
+            is_active: true,
+          },
+          select: {
+            event_id: true,
+            slug: true,
+            image_url: true,
+            title: true,
+            start: true,
+            end: true,
+            pillar: {
+              select: {
+                name: true,
+              },
+            },
+            subpillar: {
+              select: {
+                name: true,
+              },
+            },
+          },
+          orderBy: {
+            created_at: 'desc',
+          },
+          take: 4,
+        }),
+        this.prisma.team.findMany({
+          select: {
+            fullname: true,
+            image_url: true,
+            position: {
+              select: {
+                name: true,
+              },
+            },
+          },
+          take: 7,
+          orderBy: {
+            created_at: 'asc',
+          },
+        }),
+        this.prisma.partner.findMany({
+          select: {
+            partner_id: true,
+            alt: true,
+            description: true,
+            image_url: true,
+          },
+        }),
+      ]);
 
     return {
-      articles: [],
+      articles: articles.map((article) => {
+        return {
+          ...article,
+          pillar: article.pillar ? article.pillar.name : 'Lainnya',
+          subpillar: article.subpillar ? article.subpillar.name : 'Lainnya',
+          reading_time: getReadingTimeFromHTML(article.content),
+        };
+      }),
       banners,
-      events: [],
-      teams: [],
+      events: events.map((event) => {
+        return {
+          ...event,
+          status: getStatus(event.start, event.end),
+          pillar: event.pillar ? event.pillar.name : 'Lainnya',
+          subpillar: event.subpillar ? event.subpillar.name : 'Lainnya',
+        };
+      }),
+      teams: teams.map((team) => {
+        return {
+          ...team,
+          position: team.position.name,
+        };
+      }),
       partners,
     };
-  }
-
-  getBanners() {
-    return this.prisma.banner.findMany({
-      select: {
-        banner_id: true,
-        alt: true,
-        description: true,
-        image_url: true,
-      },
-    });
-  }
-
-  getPartners() {
-    return this.prisma.partner.findMany({
-      select: {
-        partner_id: true,
-        alt: true,
-        description: true,
-        image_url: true,
-      },
-    });
   }
 
   async adminLogin(body: AdminLoginDto) {
