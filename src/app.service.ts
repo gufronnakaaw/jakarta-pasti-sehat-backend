@@ -52,6 +52,7 @@ export class AppService {
             alt: true,
             description: true,
             image_url: true,
+            link: true,
           },
         }),
         this.prisma.event.findMany({
