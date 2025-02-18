@@ -14,6 +14,12 @@ export class DocsService {
   ) {}
 
   async getPublicDocs(query: DocsQuery) {
+    function getOrderBy(filter?: string): { created_at: 'desc' | 'asc' } {
+      if (filter === 'desc') return { created_at: 'desc' };
+      if (filter === 'asc') return { created_at: 'asc' };
+      return { created_at: 'desc' };
+    }
+
     const default_page = 1;
     const take = 9;
 
@@ -29,19 +35,26 @@ export class DocsService {
             {
               pillar: {
                 slug: {
-                  contains: query.filter,
+                  contains:
+                    query.filter != 'desc' && query.filter != 'asc'
+                      ? query.filter
+                      : undefined,
                 },
               },
             },
             {
               subpillar: {
                 slug: {
-                  contains: query.filter,
+                  contains:
+                    query.filter != 'desc' && query.filter != 'asc'
+                      ? query.filter
+                      : undefined,
                 },
               },
             },
           ],
         },
+        orderBy: getOrderBy(query.filter),
       }),
       this.prisma.documentation.findMany({
         where: {
@@ -50,14 +63,20 @@ export class DocsService {
             {
               pillar: {
                 slug: {
-                  contains: query.filter,
+                  contains:
+                    query.filter != 'desc' && query.filter != 'asc'
+                      ? query.filter
+                      : undefined,
                 },
               },
             },
             {
               subpillar: {
                 slug: {
-                  contains: query.filter,
+                  contains:
+                    query.filter != 'desc' && query.filter != 'asc'
+                      ? query.filter
+                      : undefined,
                 },
               },
             },
@@ -80,9 +99,7 @@ export class DocsService {
             },
           },
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: getOrderBy(query.filter),
         take,
         skip,
       }),
