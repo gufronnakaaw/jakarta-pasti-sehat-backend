@@ -89,7 +89,13 @@ export class DocsService {
     ]);
 
     return {
-      docs,
+      docs: docs.map((doc) => {
+        return {
+          ...doc,
+          pillar: doc.pillar ? doc.pillar.name : 'Lainnya',
+          subpillar: doc.subpillar ? doc.subpillar.name : 'Lainnya',
+        };
+      }),
       page: docs.length ? page : 0,
       total_docs,
       total_pages: Math.ceil(total_docs / take),
@@ -134,7 +140,13 @@ export class DocsService {
     ]);
 
     return {
-      docs,
+      docs: docs.map((doc) => {
+        return {
+          ...doc,
+          pillar: doc.pillar ? doc.pillar.name : 'Lainnya',
+          subpillar: doc.subpillar ? doc.subpillar.name : 'Lainnya',
+        };
+      }),
       page: docs.length ? page : 0,
       total_docs,
       total_pages: Math.ceil(total_docs / take),
