@@ -196,6 +196,8 @@ export class DocsService {
 
     return {
       ...all,
+      pillar: doc.pillar ? doc.pillar.name : 'Lainnya',
+      subpillar: doc.subpillar ? doc.subpillar.name : 'Lainnya',
       doc_images: docimg,
     };
   }
