@@ -3,7 +3,7 @@ import { random } from 'lodash';
 import { PREFIX } from '../utils/constant.util';
 import { PrismaService } from '../utils/services/prisma.service';
 import { StorageService } from '../utils/services/storage.service';
-import { getReadingTimeFromHTML, slug } from '../utils/string.util';
+import { getOrderBy, getReadingTimeFromHTML, slug } from '../utils/string.util';
 import {
   ArticlesQuery,
   CreateArticleDto,
@@ -29,100 +29,69 @@ export class ArticlesService {
       this.prisma.article.count({
         where: {
           is_active: true,
-          OR: [
-            {
-              title: {
-                contains: query.filter,
-              },
-            },
-            {
-              pillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              subpillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              pillar_id:
-                !query.filter || query.filter == 'Lainnya'
-                  ? null
-                  : { not: null },
-            },
-            {
-              sub_pillar_id:
-                !query.filter || query.filter == 'Lainnya'
-                  ? null
-                  : { not: null },
-            },
-          ],
+          AND:
+            query.filter && !['asc', 'desc'].includes(query.filter)
+              ? query.filter === 'other'
+                ? { pillar_id: null, sub_pillar_id: null }
+                : {
+                    OR: [
+                      {
+                        title: { contains: query.filter },
+                      },
+                      {
+                        pillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                      {
+                        subpillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                    ],
+                  }
+              : {},
         },
+        orderBy: getOrderBy(query.filter),
       }),
       this.prisma.article.findMany({
         where: {
           is_active: true,
-          OR: [
-            {
-              title: {
-                contains: query.filter,
-              },
-            },
-            {
-              pillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              subpillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              pillar_id:
-                !query.filter || query.filter == 'Lainnya'
-                  ? null
-                  : { not: null },
-            },
-            {
-              sub_pillar_id:
-                !query.filter || query.filter == 'Lainnya'
-                  ? null
-                  : { not: null },
-            },
-          ],
+          AND:
+            query.filter && !['asc', 'desc'].includes(query.filter)
+              ? query.filter === 'other'
+                ? { pillar_id: null, sub_pillar_id: null }
+                : {
+                    OR: [
+                      {
+                        title: { contains: query.filter },
+                      },
+                      {
+                        pillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                      {
+                        subpillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                    ],
+                  }
+              : {},
         },
         select: {
           article_id: true,
           slug: true,
-          pillar: {
-            select: {
-              name: true,
-            },
-          },
-          subpillar: {
-            select: {
-              name: true,
-            },
-          },
+          pillar: { select: { name: true } },
+          subpillar: { select: { name: true } },
           content: true,
           title: true,
           description: true,
           image_url: true,
           created_at: true,
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: getOrderBy(query.filter),
         take,
         skip,
       }),

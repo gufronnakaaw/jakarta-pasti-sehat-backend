@@ -37,3 +37,9 @@ export function getStatus(start: Date, end: Date) {
   if (now >= startDate && now <= endDate) return 'Berlangsung';
   return 'Berakhir';
 }
+
+export function getOrderBy(filter?: string): { created_at: 'desc' | 'asc' } {
+  return ['asc', 'desc'].includes(filter)
+    ? { created_at: filter as 'desc' | 'asc' }
+    : { created_at: 'desc' };
+}
