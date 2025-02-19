@@ -88,7 +88,7 @@ export class PartnersService {
 
     return this.prisma.partner.create({
       data: {
-        partner_id: `${PREFIX['BANNER']}${random(10000, 99999)}`,
+        partner_id: `${PREFIX['PARTNER']}${random(10000, 99999)}`,
         image_url: url,
         image_key: key,
         alt: body.alt,
