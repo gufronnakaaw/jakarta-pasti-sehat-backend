@@ -3,7 +3,7 @@ import { random } from 'lodash';
 import { PREFIX } from '../utils/constant.util';
 import { PrismaService } from '../utils/services/prisma.service';
 import { StorageService } from '../utils/services/storage.service';
-import { getStatus, slug } from '../utils/string.util';
+import { getOrderBy, getStatus, slug } from '../utils/string.util';
 import { CreateEventDto, EventsQuery, UpdateEventDto } from './events.dto';
 
 @Injectable()
@@ -25,77 +25,56 @@ export class EventsService {
       this.prisma.event.count({
         where: {
           is_active: true,
-          OR: [
-            {
-              title: {
-                contains: query.filter,
-              },
-            },
-            {
-              pillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              subpillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              pillar_id:
-                !query.filter || query.filter == 'Lainnya'
-                  ? null
-                  : { not: null },
-            },
-            {
-              sub_pillar_id:
-                !query.filter || query.filter == 'Lainnya'
-                  ? null
-                  : { not: null },
-            },
-          ],
+          AND:
+            query.filter && !['asc', 'desc'].includes(query.filter)
+              ? query.filter === 'other'
+                ? { pillar_id: null, sub_pillar_id: null }
+                : {
+                    OR: [
+                      {
+                        title: { contains: query.filter },
+                      },
+                      {
+                        pillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                      {
+                        subpillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                    ],
+                  }
+              : {},
         },
+        orderBy: getOrderBy(query.filter),
       }),
       this.prisma.event.findMany({
         where: {
           is_active: true,
-          OR: [
-            {
-              title: {
-                contains: query.filter,
-              },
-            },
-            {
-              pillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              subpillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              pillar_id:
-                !query.filter || query.filter == 'Lainnya'
-                  ? null
-                  : { not: null },
-            },
-            {
-              sub_pillar_id:
-                !query.filter || query.filter == 'Lainnya'
-                  ? null
-                  : { not: null },
-            },
-          ],
+          AND:
+            query.filter && !['asc', 'desc'].includes(query.filter)
+              ? query.filter === 'other'
+                ? { pillar_id: null, sub_pillar_id: null }
+                : {
+                    OR: [
+                      {
+                        title: { contains: query.filter },
+                      },
+                      {
+                        pillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                      {
+                        subpillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                    ],
+                  }
+              : {},
         },
         select: {
           event_id: true,
@@ -115,9 +94,7 @@ export class EventsService {
             },
           },
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: getOrderBy(query.filter),
         take,
         skip,
       }),
