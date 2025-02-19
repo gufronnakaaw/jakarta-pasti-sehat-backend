@@ -3,7 +3,7 @@ import { random } from 'lodash';
 import { PREFIX } from '../utils/constant.util';
 import { PrismaService } from '../utils/services/prisma.service';
 import { StorageService } from '../utils/services/storage.service';
-import { slug } from '../utils/string.util';
+import { getOrderBy, slug } from '../utils/string.util';
 import {
   CreateVolApplDto,
   CreateVolDto,
@@ -31,61 +31,56 @@ export class VolunteersService {
       this.prisma.volunteer.count({
         where: {
           is_active: true,
-          OR: [
-            {
-              title: {
-                contains: query.filter,
-              },
-            },
-            {
-              pillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              subpillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              pillar_id: null,
-            },
-            { sub_pillar_id: null },
-          ],
+          AND:
+            query.filter && !['asc', 'desc'].includes(query.filter)
+              ? query.filter === 'other'
+                ? { pillar_id: null, sub_pillar_id: null }
+                : {
+                    OR: [
+                      {
+                        title: { contains: query.filter },
+                      },
+                      {
+                        pillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                      {
+                        subpillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                    ],
+                  }
+              : {},
         },
+        orderBy: getOrderBy(query.filter),
       }),
       this.prisma.volunteer.findMany({
         where: {
           is_active: true,
-          OR: [
-            {
-              title: {
-                contains: query.filter,
-              },
-            },
-            {
-              pillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              subpillar: {
-                slug: {
-                  contains: query.filter,
-                },
-              },
-            },
-            {
-              pillar_id: null,
-            },
-            { sub_pillar_id: null },
-          ],
+          AND:
+            query.filter && !['asc', 'desc'].includes(query.filter)
+              ? query.filter === 'other'
+                ? { pillar_id: null, sub_pillar_id: null }
+                : {
+                    OR: [
+                      {
+                        title: { contains: query.filter },
+                      },
+                      {
+                        pillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                      {
+                        subpillar: {
+                          slug: { contains: query.filter },
+                        },
+                      },
+                    ],
+                  }
+              : {},
         },
         select: {
           volunteer_id: true,
@@ -103,9 +98,7 @@ export class VolunteersService {
             },
           },
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: getOrderBy(query.filter),
         take,
         skip,
       }),
