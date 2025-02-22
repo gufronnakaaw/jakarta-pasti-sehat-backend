@@ -99,6 +99,7 @@ export class TeamsService {
         position: {
           select: {
             name: true,
+            position_id: true,
           },
         },
         education: {
@@ -129,7 +130,7 @@ export class TeamsService {
       fullname: team.fullname,
       description: team.description,
       image_url: team.image_url,
-      position: team.position.name,
+      position: team.position,
       educations: team.education,
       social_links: team.socmed,
     };
