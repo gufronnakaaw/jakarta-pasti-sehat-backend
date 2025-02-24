@@ -152,6 +152,7 @@ export class ArticlesService {
           description: true,
           image_url: true,
           created_at: true,
+          is_active: true,
         },
         orderBy: {
           created_at: 'desc',
