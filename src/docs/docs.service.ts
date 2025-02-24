@@ -128,8 +128,19 @@ export class DocsService {
     const skip = (page - 1) * take;
 
     const [total_docs, docs] = await this.prisma.$transaction([
-      this.prisma.documentation.count(),
+      this.prisma.documentation.count({
+        where: {
+          title: {
+            contains: query.q,
+          },
+        },
+      }),
       this.prisma.documentation.findMany({
+        where: {
+          title: {
+            contains: query.q,
+          },
+        },
         select: {
           doc_id: true,
           slug: true,
