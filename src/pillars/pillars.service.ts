@@ -12,10 +12,12 @@ export class PillarsService {
   async getPublicPillars() {
     const pillars = await this.prisma.pillar.findMany({
       select: {
+        pillar_id: true,
         name: true,
         slug: true,
         subpillar: {
           select: {
+            sub_pillar_id: true,
             name: true,
             slug: true,
           },
