@@ -80,7 +80,7 @@ export class AppController {
   @UseGuards(AdminGuard)
   @Post('/contents/image')
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('contents'))
+  @UseInterceptors(FileInterceptor('upload'))
   async uploadContentImage(
     @UploadedFile(
       new ParseFilePipe({
