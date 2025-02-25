@@ -152,11 +152,13 @@ export class VolunteersService {
           },
           pillar: {
             select: {
+              pillar_id: true,
               name: true,
             },
           },
           subpillar: {
             select: {
+              sub_pillar_id: true,
               name: true,
             },
           },
