@@ -152,13 +152,11 @@ export class VolunteersService {
           },
           pillar: {
             select: {
-              pillar_id: true,
               name: true,
             },
           },
           subpillar: {
             select: {
-              sub_pillar_id: true,
               name: true,
             },
           },
@@ -246,11 +244,13 @@ export class VolunteersService {
         created_at: true,
         pillar: {
           select: {
+            pillar_id: true,
             name: true,
           },
         },
         subpillar: {
           select: {
+            sub_pillar_id: true,
             name: true,
           },
         },
@@ -282,8 +282,8 @@ export class VolunteersService {
     return {
       ...all,
       volappls: volappl,
-      pillar: vol.pillar ? vol.pillar.name : 'Lainnya',
-      subpillar: vol.subpillar ? vol.subpillar.name : 'Lainnya',
+      pillar: vol.pillar ? vol.pillar : 'Lainnya',
+      subpillar: vol.subpillar ? vol.subpillar : 'Lainnya',
     };
   }
 
