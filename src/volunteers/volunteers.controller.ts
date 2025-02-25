@@ -42,7 +42,7 @@ export class VolunteersController {
   @UseGuards(PublicGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getDocs(
+  async getVols(
     @Query() query: VolsQuery,
     @Req() request: Request,
   ): Promise<SuccessResponse> {
