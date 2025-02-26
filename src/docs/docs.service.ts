@@ -201,11 +201,13 @@ export class DocsService {
         created_at: true,
         pillar: {
           select: {
+            pillar_id: true,
             name: true,
           },
         },
         subpillar: {
           select: {
+            sub_pillar_id: true,
             name: true,
           },
         },
@@ -224,8 +226,8 @@ export class DocsService {
 
     return {
       ...all,
-      pillar: doc.pillar ? doc.pillar.name : 'Lainnya',
-      subpillar: doc.subpillar ? doc.subpillar.name : 'Lainnya',
+      pillar: doc.pillar ? doc.pillar : 'Lainnya',
+      subpillar: doc.subpillar ? doc.subpillar : 'Lainnya',
       doc_images: docimg,
     };
   }

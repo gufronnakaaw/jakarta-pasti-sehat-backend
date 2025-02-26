@@ -194,11 +194,13 @@ export class ArticlesService {
         slug: true,
         pillar: {
           select: {
+            pillar_id: true,
             name: true,
           },
         },
         subpillar: {
           select: {
+            sub_pillar_id: true,
             name: true,
           },
         },
@@ -213,8 +215,8 @@ export class ArticlesService {
 
     return {
       ...article,
-      pillar: article.pillar ? article.pillar.name : 'Lainnya',
-      subpillar: article.subpillar ? article.subpillar.name : 'Lainnya',
+      pillar: article.pillar ? article.pillar : 'Lainnya',
+      subpillar: article.subpillar ? article.subpillar : 'Lainnya',
       reading_time: getReadingTimeFromHTML(article.content),
     };
   }

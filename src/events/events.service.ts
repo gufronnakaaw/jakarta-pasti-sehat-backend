@@ -254,11 +254,13 @@ export class EventsService {
         is_active: true,
         pillar: {
           select: {
+            pillar_id: true,
             name: true,
           },
         },
         subpillar: {
           select: {
+            sub_pillar_id: true,
             name: true,
           },
         },
@@ -267,8 +269,8 @@ export class EventsService {
 
     return {
       ...event,
-      pillar: event.pillar ? event.pillar.name : 'Lainnya',
-      subpillar: event.subpillar ? event.subpillar.name : 'Lainnya',
+      pillar: event.pillar ? event.pillar : 'Lainnya',
+      subpillar: event.subpillar ? event.subpillar : 'Lainnya',
     };
   }
 
