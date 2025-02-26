@@ -228,8 +228,8 @@ model Documentation {
   id               Int              @id               @default(autoincrement())
   doc_id           String           @unique
   slug             String           @unique           
-  pillar_id        String           
-  sub_pillar_id    String           
+  pillar_id        String?           
+  sub_pillar_id    String?           
   title            String
   thumbnail_url    String
   thumbnail_key    String
@@ -242,8 +242,8 @@ model Documentation {
   updated_at       DateTime         @updatedAt
 
   docimg           DocumentationImage[]
-  pillar           Pillar           @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
-  subpillar        SubPillar        @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
+  pillar           Pillar?          @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
+  subpillar        SubPillar?       @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
 
   @@map("documentation")
 }
