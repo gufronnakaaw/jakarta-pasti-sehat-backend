@@ -341,8 +341,8 @@ export class EventsService {
         data: {
           slug: body.title ? slug(body.title) : undefined,
           title: body.title,
-          pillar_id: body.pillar_id,
-          sub_pillar_id: body.sub_pillar_id,
+          pillar_id: body.pillar_id ? body.pillar_id : null,
+          sub_pillar_id: body.sub_pillar_id ? body.sub_pillar_id : null,
           image_key: key,
           image_url: url,
           start: body.start,
@@ -372,8 +372,8 @@ export class EventsService {
       data: {
         slug: body.title ? slug(body.title) : undefined,
         title: body.title,
-        pillar_id: body.pillar_id,
-        sub_pillar_id: body.sub_pillar_id,
+        pillar_id: body.pillar_id ? body.pillar_id : null,
+        sub_pillar_id: body.sub_pillar_id ? body.sub_pillar_id : null,
         start: body.start,
         end: body.end,
         detail: body.detail,

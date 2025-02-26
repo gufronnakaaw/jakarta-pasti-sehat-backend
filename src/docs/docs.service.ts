@@ -305,8 +305,8 @@ export class DocsService {
         data: {
           title: body.title,
           slug: body.title ? slug(body.title) : undefined,
-          pillar_id: body.pillar_id,
-          sub_pillar_id: body.sub_pillar_id,
+          pillar_id: body.pillar_id ? body.pillar_id : null,
+          sub_pillar_id: body.sub_pillar_id ? body.sub_pillar_id : null,
           thumbnail_url: url,
           thumbnail_key: key,
           updated_by: body.by,
@@ -329,8 +329,8 @@ export class DocsService {
       data: {
         title: body.title,
         slug: body.title ? slug(body.title) : undefined,
-        pillar_id: body.pillar_id,
-        sub_pillar_id: body.sub_pillar_id,
+        pillar_id: body.pillar_id ? body.pillar_id : null,
+        sub_pillar_id: body.sub_pillar_id ? body.sub_pillar_id : null,
         updated_by: body.by,
         is_active: body.is_active
           ? body.is_active === 'true'

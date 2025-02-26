@@ -7,8 +7,8 @@ export type DocsQuery = {
 };
 
 export const createDocSchema = z.object({
-  pillar_id: z.string(),
-  sub_pillar_id: z.string(),
+  pillar_id: z.string().optional(),
+  sub_pillar_id: z.string().optional(),
   title: z.string(),
   by: z.string(),
 });

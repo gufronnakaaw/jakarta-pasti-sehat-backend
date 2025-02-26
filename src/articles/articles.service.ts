@@ -330,8 +330,8 @@ export class ArticlesService {
         data: {
           title: body.title,
           slug: body.title ? slug(body.title) : undefined,
-          pillar_id: body.pillar_id,
-          sub_pillar_id: body.sub_pillar_id,
+          pillar_id: body.pillar_id ? body.pillar_id : null,
+          sub_pillar_id: body.sub_pillar_id ? body.sub_pillar_id : null,
           content: body.content,
           description: body.description,
           image_key: key,
@@ -356,8 +356,8 @@ export class ArticlesService {
       data: {
         title: body.title,
         slug: body.title ? slug(body.title) : undefined,
-        pillar_id: body.pillar_id,
-        sub_pillar_id: body.sub_pillar_id,
+        pillar_id: body.pillar_id ? body.pillar_id : null,
+        sub_pillar_id: body.sub_pillar_id ? body.sub_pillar_id : null,
         content: body.content,
         description: body.description,
         is_active: body.is_active
