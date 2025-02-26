@@ -62,12 +62,20 @@ export class ArticlesController {
   @HttpCode(HttpStatus.OK)
   async getArticle(
     @Param('id_or_slug') id_or_slug: string,
+    @Req() request: Request,
   ): Promise<SuccessResponse> {
     try {
+      const role = request.headers['x-role'];
+
+      const data =
+        role !== 'admin'
+          ? await this.articlesService.getPublicArticle(id_or_slug)
+          : await this.articlesService.getArticle(id_or_slug);
+
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.articlesService.getArticle(id_or_slug),
+        data,
       };
     } catch (error) {
       throw error;

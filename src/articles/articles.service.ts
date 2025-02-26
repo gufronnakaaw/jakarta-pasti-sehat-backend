@@ -177,6 +177,48 @@ export class ArticlesService {
     };
   }
 
+  async getPublicArticle(id_or_slug: string) {
+    const article = await this.prisma.article.findFirst({
+      where: {
+        OR: [
+          {
+            article_id: id_or_slug,
+          },
+          {
+            slug: id_or_slug,
+          },
+        ],
+      },
+      select: {
+        article_id: true,
+        slug: true,
+        pillar: {
+          select: {
+            name: true,
+          },
+        },
+        subpillar: {
+          select: {
+            name: true,
+          },
+        },
+        content: true,
+        title: true,
+        description: true,
+        image_url: true,
+        created_at: true,
+        created_by: true,
+      },
+    });
+
+    return {
+      ...article,
+      pillar: article.pillar ? article.pillar.name : 'Lainnya',
+      subpillar: article.subpillar ? article.subpillar.name : 'Lainnya',
+      reading_time: getReadingTimeFromHTML(article.content),
+    };
+  }
+
   async getArticle(id_or_slug: string) {
     const article = await this.prisma.article.findFirst({
       where: {
@@ -208,6 +250,7 @@ export class ArticlesService {
         title: true,
         description: true,
         image_url: true,
+        is_active: true,
         created_at: true,
         created_by: true,
       },
