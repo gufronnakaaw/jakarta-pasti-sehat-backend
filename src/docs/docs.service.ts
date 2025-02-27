@@ -181,7 +181,7 @@ export class DocsService {
     };
   }
 
-  async getDoc(id_or_slug: string) {
+  async getDoc(id_or_slug: string, role: string) {
     const doc = await this.prisma.documentation.findFirst({
       where: {
         OR: [
@@ -226,8 +226,16 @@ export class DocsService {
 
     return {
       ...all,
-      pillar: doc.pillar ? doc.pillar : 'Lainnya',
-      subpillar: doc.subpillar ? doc.subpillar : 'Lainnya',
+      pillar: doc.pillar
+        ? role == 'admin'
+          ? doc.pillar
+          : doc.pillar.name
+        : 'Lainnya',
+      subpillar: doc.subpillar
+        ? role == 'admin'
+          ? doc.subpillar
+          : doc.subpillar.name
+        : 'Lainnya',
       doc_images: docimg,
     };
   }
