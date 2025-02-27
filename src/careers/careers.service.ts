@@ -242,6 +242,8 @@ export class CareersService {
         career_id: true,
         slug: true,
         title: true,
+        type: true,
+        location: true,
         requirements: true,
         responsibilities: true,
         created_at: true,
