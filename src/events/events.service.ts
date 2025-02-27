@@ -146,6 +146,7 @@ export class EventsService {
           end: true,
           created_at: true,
           created_by: true,
+          is_active: true,
           pillar: {
             select: {
               name: true,
