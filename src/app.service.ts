@@ -178,6 +178,7 @@ export class AppService {
         admin_id: admin.admin_id,
         role: admin.role,
       }),
+      role: admin.role,
     };
   }
 
