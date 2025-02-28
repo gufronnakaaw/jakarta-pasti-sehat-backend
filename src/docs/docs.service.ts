@@ -199,6 +199,7 @@ export class DocsService {
         slug: true,
         thumbnail_url: true,
         created_at: true,
+        is_active: true,
         pillar: {
           select: {
             pillar_id: true,
@@ -223,6 +224,10 @@ export class DocsService {
     const { docimg, ...all } = doc;
 
     delete doc.docimg;
+
+    if (role != 'admin') {
+      delete all.is_active;
+    }
 
     return {
       ...all,
