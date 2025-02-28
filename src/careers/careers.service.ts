@@ -5,30 +5,30 @@ import { PrismaService } from '../utils/services/prisma.service';
 import { StorageService } from '../utils/services/storage.service';
 import { getOrderBy, slug } from '../utils/string.util';
 import {
-  CreateVolApplDto,
-  CreateVolDto,
-  UpdateVolApplDto,
-  UpdateVolDto,
-  VolsQuery,
-} from './volunteers.dto';
+  CareerQuery,
+  CreateCareerApplDto,
+  CreateCareerDto,
+  UpdateCarApplDto,
+  UpdateCareerDto,
+} from './careers.dto';
 
 @Injectable()
-export class VolunteersService {
+export class CareersService {
   constructor(
     private prisma: PrismaService,
     private storage: StorageService,
   ) {}
 
-  async getPublicVols(query: VolsQuery) {
+  async getPublicCareers(query: CareerQuery) {
     const default_page = 1;
-    const take = 8;
+    const take = 6;
 
     const page = query.page ? parseInt(query.page) : default_page;
 
     const skip = (page - 1) * take;
 
-    const [total_vols, vols] = await this.prisma.$transaction([
-      this.prisma.volunteer.count({
+    const [total_careers, careers] = await this.prisma.$transaction([
+      this.prisma.career.count({
         where: {
           is_active: true,
           AND:
@@ -56,7 +56,7 @@ export class VolunteersService {
         },
         orderBy: getOrderBy(query.filter),
       }),
-      this.prisma.volunteer.findMany({
+      this.prisma.career.findMany({
         where: {
           is_active: true,
           AND:
@@ -83,10 +83,10 @@ export class VolunteersService {
               : {},
         },
         select: {
-          volunteer_id: true,
           slug: true,
           title: true,
-          created_at: true,
+          location: true,
+          type: true,
           pillar: {
             select: {
               name: true,
@@ -105,20 +105,20 @@ export class VolunteersService {
     ]);
 
     return {
-      vols: vols.map((vol) => {
+      careers: careers.map((vol) => {
         return {
           ...vol,
           pillar: vol.pillar ? vol.pillar.name : 'Lainnya',
           subpillar: vol.subpillar ? vol.subpillar.name : 'Lainnya',
         };
       }),
-      page: vols.length ? page : 0,
-      total_vols,
-      total_pages: Math.ceil(total_vols / take),
+      page: careers.length ? page : 0,
+      total_careers,
+      total_pages: Math.ceil(total_careers / take),
     };
   }
 
-  async getVols(query: VolsQuery) {
+  async getCareers(query: CareerQuery) {
     const default_page = 1;
     const take = 8;
 
@@ -126,28 +126,29 @@ export class VolunteersService {
 
     const skip = (page - 1) * take;
 
-    const [total_vols, vols] = await this.prisma.$transaction([
-      this.prisma.volunteer.count({
+    const [total_careers, careers] = await this.prisma.$transaction([
+      this.prisma.career.count({
         where: {
           title: {
             contains: query.q,
           },
         },
       }),
-      this.prisma.volunteer.findMany({
+      this.prisma.career.findMany({
         where: {
           title: {
             contains: query.q,
           },
         },
         select: {
-          volunteer_id: true,
+          career_id: true,
           slug: true,
           title: true,
           created_at: true,
-          volappl: {
+          is_active: true,
+          carappl: {
             select: {
-              vol_appl_id: true,
+              car_appl_id: true,
             },
           },
           pillar: {
@@ -170,26 +171,26 @@ export class VolunteersService {
     ]);
 
     return {
-      vols: vols.map((vol) => {
-        const { volappl, ...all } = vol;
+      careers: careers.map((vol) => {
+        const { carappl, ...all } = vol;
 
         return {
           ...all,
-          total_volappls: volappl.length,
+          total_carappls: carappl.length,
         };
       }),
-      page: vols.length ? page : 0,
-      total_vols,
-      total_pages: Math.ceil(total_vols / take),
+      page: careers.length ? page : 0,
+      total_careers,
+      total_pages: Math.ceil(total_careers / take),
     };
   }
 
-  async getPublicVol(id_or_slug: string) {
-    const vol = await this.prisma.volunteer.findFirst({
+  async getPublicCareer(id_or_slug: string) {
+    const career = await this.prisma.career.findFirst({
       where: {
         OR: [
           {
-            volunteer_id: id_or_slug,
+            career_id: id_or_slug,
           },
           {
             slug: id_or_slug,
@@ -197,9 +198,11 @@ export class VolunteersService {
         ],
       },
       select: {
-        volunteer_id: true,
+        career_id: true,
         slug: true,
         title: true,
+        location: true,
+        type: true,
         requirements: true,
         responsibilities: true,
         created_at: true,
@@ -217,18 +220,18 @@ export class VolunteersService {
     });
 
     return {
-      ...vol,
-      pillar: vol.pillar ? vol.pillar.name : 'Lainnya',
-      subpillar: vol.subpillar ? vol.subpillar.name : 'Lainnya',
+      ...career,
+      pillar: career.pillar ? career.pillar.name : 'Lainnya',
+      subpillar: career.subpillar ? career.subpillar.name : 'Lainnya',
     };
   }
 
-  async getVol(id_or_slug: string) {
-    const vol = await this.prisma.volunteer.findFirst({
+  async getCareer(id_or_slug: string) {
+    const career = await this.prisma.career.findFirst({
       where: {
         OR: [
           {
-            volunteer_id: id_or_slug,
+            career_id: id_or_slug,
           },
           {
             slug: id_or_slug,
@@ -236,9 +239,11 @@ export class VolunteersService {
         ],
       },
       select: {
-        volunteer_id: true,
+        career_id: true,
         slug: true,
         title: true,
+        type: true,
+        location: true,
         requirements: true,
         responsibilities: true,
         created_at: true,
@@ -254,17 +259,16 @@ export class VolunteersService {
             name: true,
           },
         },
-        volappl: {
+        carappl: {
           select: {
-            vol_appl_id: true,
+            car_appl_id: true,
             fullname: true,
             email: true,
-            institution: true,
-            level: true,
-            study_program: true,
-            reason: true,
+            address: true,
+            phone_number: true,
+            instagram_url: true,
+            portofolio_url: true,
             cv_url: true,
-            follow_url: true,
             uploaded_at: true,
             is_approved: true,
             approved_by: true,
@@ -276,23 +280,25 @@ export class VolunteersService {
       },
     });
 
-    const { volappl, ...all } = vol;
-    delete vol.volappl;
+    const { carappl, ...all } = career;
+    delete career.carappl;
 
     return {
       ...all,
-      volappls: volappl,
-      pillar: vol.pillar ? vol.pillar : 'Lainnya',
-      subpillar: vol.subpillar ? vol.subpillar : 'Lainnya',
+      carappls: carappl,
+      pillar: career.pillar ? career.pillar : 'Lainnya',
+      subpillar: career.subpillar ? career.subpillar : 'Lainnya',
     };
   }
 
-  createVol(body: CreateVolDto) {
-    return this.prisma.volunteer.create({
+  createCareer(body: CreateCareerDto) {
+    return this.prisma.career.create({
       data: {
-        volunteer_id: `${PREFIX['VOLUNTEER']}${random(100000, 999999)}`,
-        title: body.title,
+        career_id: `${PREFIX['CAREER']}${random(100000, 999999)}`,
         slug: slug(body.title),
+        title: body.title,
+        location: body.location,
+        type: body.type,
         requirements: body.requirements,
         responsibilities: body.responsibilities,
         pillar_id: body.pillar_id,
@@ -301,25 +307,27 @@ export class VolunteersService {
         updated_by: body.by,
       },
       select: {
-        volunteer_id: true,
+        career_id: true,
       },
     });
   }
 
-  async updateVol(body: UpdateVolDto) {
+  async updateCareer(body: UpdateCareerDto) {
     if (
-      !(await this.prisma.volunteer.count({
-        where: { volunteer_id: body.volunteer_id },
+      !(await this.prisma.career.count({
+        where: { career_id: body.career_id },
       }))
     ) {
-      throw new NotFoundException('Volunteer tidak ditemukan');
+      throw new NotFoundException('Karir tidak ditemukan');
     }
 
-    return this.prisma.volunteer.update({
-      where: { volunteer_id: body.volunteer_id },
+    return this.prisma.career.update({
+      where: { career_id: body.career_id },
       data: {
-        title: body.title,
         slug: body.title ? slug(body.title) : undefined,
+        title: body.title,
+        location: body.location,
+        type: body.type,
         requirements: body.requirements,
         responsibilities: body.responsibilities,
         pillar_id: body.pillar_id ? body.pillar_id : null,
@@ -328,133 +336,100 @@ export class VolunteersService {
         is_active: body.is_active,
       },
       select: {
-        volunteer_id: true,
+        career_id: true,
       },
     });
   }
 
-  async deleteVol(volunteer_id: string) {
-    const vol = await this.prisma.volunteer.findUnique({
-      where: { volunteer_id },
+  async deleteCareer(career_id: string) {
+    const career = await this.prisma.career.findUnique({
+      where: { career_id },
       select: {
-        volappl: {
+        carappl: {
           select: {
             cv_key: true,
-            follow_key: true,
           },
         },
       },
     });
 
-    if (!vol) {
-      throw new NotFoundException('Volunteer tidak ditemukan');
+    if (!career) {
+      throw new NotFoundException('Karir tidak ditemukan');
     }
 
-    for (const volappl of vol.volappl) {
-      await Promise.all([
-        this.storage.deleteFile({
-          bucket: 'jakartapastisehat',
-          key: volappl.cv_key,
-        }),
-        this.storage.deleteFile({
-          bucket: 'jakartapastisehat',
-          key: volappl.follow_key,
-        }),
-      ]);
+    for (const carappl of career.carappl) {
+      await this.storage.deleteFile({
+        bucket: 'jakartapastisehat',
+        key: carappl.cv_key,
+      });
     }
 
-    return this.prisma.volunteer.delete({
-      where: { volunteer_id },
+    return this.prisma.career.delete({
+      where: { career_id },
       select: {
-        volunteer_id: true,
+        career_id: true,
       },
     });
   }
 
-  async createVolAppl(
-    body: CreateVolApplDto,
-    files: {
-      cv?: Express.Multer.File[];
-      follow?: Express.Multer.File[];
-    },
-  ) {
-    const cv = files.cv[0];
-    const follow = files.follow[0];
-
-    const cv_key = `vol_cvs/${Date.now()}-${cv.originalname}`;
-    const follow_key = `vol_proofs/${Date.now()}-${follow.originalname}`;
+  async createCarAppl(body: CreateCareerApplDto, file: Express.Multer.File) {
+    const cv_key = `career_cvs/${Date.now()}-${file.originalname}`;
 
     try {
-      const [cv_url, follow_url] = await Promise.all([
-        this.storage.uploadFile({
-          buffer: cv.buffer,
-          bucket: 'jakartapastisehat',
-          key: cv_key,
-          mimetype: cv.mimetype,
-        }),
-        this.storage.uploadFile({
-          buffer: follow.buffer,
-          bucket: 'jakartapastisehat',
-          key: follow_key,
-          mimetype: follow.mimetype,
-        }),
-      ]);
+      const url = await this.storage.uploadFile({
+        buffer: file.buffer,
+        bucket: 'jakartapastisehat',
+        key: cv_key,
+        mimetype: file.mimetype,
+      });
 
-      return this.prisma.volunteerApplicant.create({
+      return this.prisma.careerApplicant.create({
         data: {
-          volunteer_id: body.volunteer_id,
-          vol_appl_id: `JPSVOLAPPL${random(100000, 999999)}`,
+          career_id: body.career_id,
+          car_appl_id: `JPSCARAPPL${random(100000, 999999)}`,
           fullname: body.fullname,
+          address: body.address,
+          phone_number: body.phone_number,
           email: body.email,
-          institution: body.institution,
-          level: body.level,
-          study_program: body.study_program,
-          reason: body.reason,
           cv_key,
-          cv_url,
-          follow_key,
-          follow_url,
+          cv_url: url,
+          instagram_url: body.instagram_url,
+          portofolio_url: body.portofolio_url,
         },
         select: {
-          vol_appl_id: true,
+          car_appl_id: true,
         },
       });
     } catch (error) {
-      await Promise.all([
-        this.storage.deleteFile({
-          bucket: 'jakartapastisehat',
-          key: cv_key,
-        }),
-        this.storage.deleteFile({
-          bucket: 'jakartapastisehat',
-          key: follow_key,
-        }),
-      ]);
+      this.storage.deleteFile({
+        bucket: 'jakartapastisehat',
+        key: cv_key,
+      });
 
       throw error;
     }
   }
 
-  async updateVolAppl(body: UpdateVolApplDto) {
-    const volappl = await this.prisma.volunteerApplicant.findUnique({
-      where: { vol_appl_id: body.vol_appl_id },
+  async updateCarAppl(body: UpdateCarApplDto) {
+    const carappl = await this.prisma.careerApplicant.findUnique({
+      where: { car_appl_id: body.car_appl_id },
       select: {
         is_approved: true,
       },
     });
 
-    if (!volappl) {
+    if (!carappl) {
       throw new NotFoundException('Volunteer tidak ditemukan');
     }
 
-    return this.prisma.volunteerApplicant.update({
-      where: { vol_appl_id: body.vol_appl_id },
+    return this.prisma.careerApplicant.update({
+      where: { car_appl_id: body.car_appl_id },
       data: {
-        is_approved: !volappl.is_approved,
+        is_approved: !carappl.is_approved,
         approved_by: body.by,
       },
       select: {
-        vol_appl_id: true,
+        car_appl_id: true,
       },
     });
   }

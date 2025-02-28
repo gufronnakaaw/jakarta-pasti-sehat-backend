@@ -1,13 +1,18 @@
 import {
   Body,
   Controller,
+  FileTypeValidator,
   Get,
   HttpCode,
   HttpStatus,
+  ParseFilePipe,
   Post,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminLoginDto, adminLoginSchema } from './app.dto';
 import { AppService } from './app.service';
 import { SuccessResponse } from './utils/global/global.response';
@@ -66,6 +71,31 @@ export class AppController {
         success: true,
         status_code: HttpStatus.OK,
         data: await this.appService.getDashboard(),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @UseGuards(AdminGuard)
+  @Post('/contents/image')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('upload'))
+  async uploadContentImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({
+            fileType: /\/(jpeg|jpg|png)$/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<{ url: string }> {
+    try {
+      return {
+        url: await this.appService.uploadContentImage(file),
       };
     } catch (error) {
       throw error;

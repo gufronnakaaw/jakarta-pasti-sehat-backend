@@ -14,6 +14,12 @@ export class DocsService {
   ) {}
 
   async getPublicDocs(query: DocsQuery) {
+    function getOrderBy(filter?: string): { created_at: 'desc' | 'asc' } {
+      if (filter === 'desc') return { created_at: 'desc' };
+      if (filter === 'asc') return { created_at: 'asc' };
+      return { created_at: 'desc' };
+    }
+
     const default_page = 1;
     const take = 9;
 
@@ -29,19 +35,26 @@ export class DocsService {
             {
               pillar: {
                 slug: {
-                  contains: query.filter,
+                  contains:
+                    query.filter != 'desc' && query.filter != 'asc'
+                      ? query.filter
+                      : undefined,
                 },
               },
             },
             {
               subpillar: {
                 slug: {
-                  contains: query.filter,
+                  contains:
+                    query.filter != 'desc' && query.filter != 'asc'
+                      ? query.filter
+                      : undefined,
                 },
               },
             },
           ],
         },
+        orderBy: getOrderBy(query.filter),
       }),
       this.prisma.documentation.findMany({
         where: {
@@ -50,14 +63,20 @@ export class DocsService {
             {
               pillar: {
                 slug: {
-                  contains: query.filter,
+                  contains:
+                    query.filter != 'desc' && query.filter != 'asc'
+                      ? query.filter
+                      : undefined,
                 },
               },
             },
             {
               subpillar: {
                 slug: {
-                  contains: query.filter,
+                  contains:
+                    query.filter != 'desc' && query.filter != 'asc'
+                      ? query.filter
+                      : undefined,
                 },
               },
             },
@@ -80,16 +99,20 @@ export class DocsService {
             },
           },
         },
-        orderBy: {
-          created_at: 'desc',
-        },
+        orderBy: getOrderBy(query.filter),
         take,
         skip,
       }),
     ]);
 
     return {
-      docs,
+      docs: docs.map((doc) => {
+        return {
+          ...doc,
+          pillar: doc.pillar ? doc.pillar.name : 'Lainnya',
+          subpillar: doc.subpillar ? doc.subpillar.name : 'Lainnya',
+        };
+      }),
       page: docs.length ? page : 0,
       total_docs,
       total_pages: Math.ceil(total_docs / take),
@@ -105,8 +128,19 @@ export class DocsService {
     const skip = (page - 1) * take;
 
     const [total_docs, docs] = await this.prisma.$transaction([
-      this.prisma.documentation.count(),
+      this.prisma.documentation.count({
+        where: {
+          title: {
+            contains: query.q,
+          },
+        },
+      }),
       this.prisma.documentation.findMany({
+        where: {
+          title: {
+            contains: query.q,
+          },
+        },
         select: {
           doc_id: true,
           slug: true,
@@ -134,14 +168,20 @@ export class DocsService {
     ]);
 
     return {
-      docs,
+      docs: docs.map((doc) => {
+        return {
+          ...doc,
+          pillar: doc.pillar ? doc.pillar.name : 'Lainnya',
+          subpillar: doc.subpillar ? doc.subpillar.name : 'Lainnya',
+        };
+      }),
       page: docs.length ? page : 0,
       total_docs,
       total_pages: Math.ceil(total_docs / take),
     };
   }
 
-  async getDoc(id_or_slug: string) {
+  async getDoc(id_or_slug: string, role: string) {
     const doc = await this.prisma.documentation.findFirst({
       where: {
         OR: [
@@ -159,13 +199,16 @@ export class DocsService {
         slug: true,
         thumbnail_url: true,
         created_at: true,
+        is_active: true,
         pillar: {
           select: {
+            pillar_id: true,
             name: true,
           },
         },
         subpillar: {
           select: {
+            sub_pillar_id: true,
             name: true,
           },
         },
@@ -182,8 +225,22 @@ export class DocsService {
 
     delete doc.docimg;
 
+    if (role != 'admin') {
+      delete all.is_active;
+    }
+
     return {
       ...all,
+      pillar: doc.pillar
+        ? role == 'admin'
+          ? doc.pillar
+          : doc.pillar.name
+        : 'Lainnya',
+      subpillar: doc.subpillar
+        ? role == 'admin'
+          ? doc.subpillar
+          : doc.subpillar.name
+        : 'Lainnya',
       doc_images: docimg,
     };
   }
@@ -261,12 +318,16 @@ export class DocsService {
         data: {
           title: body.title,
           slug: body.title ? slug(body.title) : undefined,
-          pillar_id: body.pillar_id,
-          sub_pillar_id: body.sub_pillar_id,
+          pillar_id: body.pillar_id ? body.pillar_id : null,
+          sub_pillar_id: body.sub_pillar_id ? body.sub_pillar_id : null,
           thumbnail_url: url,
           thumbnail_key: key,
           updated_by: body.by,
-          is_active: body.is_active,
+          is_active: body.is_active
+            ? body.is_active === 'true'
+              ? true
+              : false
+            : undefined,
         },
         select: {
           doc_id: true,
@@ -281,10 +342,14 @@ export class DocsService {
       data: {
         title: body.title,
         slug: body.title ? slug(body.title) : undefined,
-        pillar_id: body.pillar_id,
-        sub_pillar_id: body.sub_pillar_id,
+        pillar_id: body.pillar_id ? body.pillar_id : null,
+        sub_pillar_id: body.sub_pillar_id ? body.sub_pillar_id : null,
         updated_by: body.by,
-        is_active: body.is_active,
+        is_active: body.is_active
+          ? body.is_active === 'true'
+            ? true
+            : false
+          : undefined,
       },
       select: {
         doc_id: true,

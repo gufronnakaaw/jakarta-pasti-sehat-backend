@@ -70,12 +70,15 @@ export class DocsController {
   @HttpCode(HttpStatus.OK)
   async getDoc(
     @Param('id_or_slug') id_or_slug: string,
+    @Req() request: Request,
   ): Promise<SuccessResponse> {
+    const role = request.headers['x-role'];
+
     try {
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.docsService.getDoc(id_or_slug),
+        data: await this.docsService.getDoc(id_or_slug, role),
       };
     } catch (error) {
       throw error;

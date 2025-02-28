@@ -10,12 +10,12 @@ import {
   Post,
   Query,
   Req,
-  UploadedFiles,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import { SuccessResponse } from '../utils/global/global.response';
 import { AdminGuard } from '../utils/guards/admin.guard';
@@ -23,27 +23,27 @@ import { PublicGuard } from '../utils/guards/public.guard';
 import { ZodInterceptor } from '../utils/interceptors/zod.interceptor';
 import { ZodValidationPipe } from '../utils/pipes/zod.pipe';
 import {
-  CreateVolApplDto,
-  createVolApplSchema,
-  CreateVolDto,
-  createVolSchema,
-  UpdateVolApplDto,
-  updateVolApplSchema,
-  UpdateVolDto,
-  updateVolSchema,
-  VolsQuery,
-} from './volunteers.dto';
-import { VolunteersService } from './volunteers.service';
+  CareerQuery,
+  CreateCareerApplDto,
+  createCareerApplSchema,
+  CreateCareerDto,
+  createCareerSchema,
+  UpdateCarApplDto,
+  updateCarApplSchema,
+  UpdateCareerDto,
+  updateCareerSchema,
+} from './careers.dto';
+import { CareersService } from './careers.service';
 
-@Controller('volunteers')
-export class VolunteersController {
-  constructor(private readonly volunteersService: VolunteersService) {}
+@Controller('careers')
+export class CareersController {
+  constructor(private readonly careersService: CareersService) {}
 
   @UseGuards(PublicGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
-  async getVols(
-    @Query() query: VolsQuery,
+  async getCareers(
+    @Query() query: CareerQuery,
     @Req() request: Request,
   ): Promise<SuccessResponse> {
     try {
@@ -51,8 +51,8 @@ export class VolunteersController {
 
       const data =
         role !== 'admin'
-          ? await this.volunteersService.getPublicVols(query)
-          : await this.volunteersService.getVols(query);
+          ? await this.careersService.getPublicCareers(query)
+          : await this.careersService.getCareers(query);
       return {
         success: true,
         status_code: HttpStatus.OK,
@@ -66,7 +66,7 @@ export class VolunteersController {
   @UseGuards(PublicGuard)
   @Get(':id_or_slug')
   @HttpCode(HttpStatus.OK)
-  async getVol(
+  async getCareer(
     @Param('id_or_slug') id_or_slug: string,
     @Req() request: Request,
   ): Promise<SuccessResponse> {
@@ -75,8 +75,8 @@ export class VolunteersController {
 
       const data =
         role !== 'admin'
-          ? await this.volunteersService.getPublicVol(id_or_slug)
-          : await this.volunteersService.getVol(id_or_slug);
+          ? await this.careersService.getPublicCareer(id_or_slug)
+          : await this.careersService.getCareer(id_or_slug);
 
       return {
         success: true,
@@ -91,13 +91,13 @@ export class VolunteersController {
   @UseGuards(AdminGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ZodValidationPipe(createVolSchema))
-  async createVol(@Body() body: CreateVolDto): Promise<SuccessResponse> {
+  @UsePipes(new ZodValidationPipe(createCareerSchema))
+  async createCareer(@Body() body: CreateCareerDto): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.CREATED,
-        data: await this.volunteersService.createVol(body),
+        data: await this.careersService.createCareer(body),
       };
     } catch (error) {
       throw error;
@@ -107,13 +107,13 @@ export class VolunteersController {
   @UseGuards(AdminGuard)
   @Patch()
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ZodValidationPipe(updateVolSchema))
-  async updateVol(@Body() body: UpdateVolDto): Promise<SuccessResponse> {
+  @UsePipes(new ZodValidationPipe(updateCareerSchema))
+  async updateCareer(@Body() body: UpdateCareerDto): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.volunteersService.updateVol(body),
+        data: await this.careersService.updateCareer(body),
       };
     } catch (error) {
       throw error;
@@ -123,14 +123,14 @@ export class VolunteersController {
   @UseGuards(AdminGuard)
   @Delete(':volunteer_id')
   @HttpCode(HttpStatus.OK)
-  async deleteVol(
+  async deleteCareer(
     @Param('volunteer_id') volunteer_id: string,
   ): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.volunteersService.deleteVol(volunteer_id),
+        data: await this.careersService.deleteCareer(volunteer_id),
       };
     } catch (error) {
       throw error;
@@ -140,25 +140,18 @@ export class VolunteersController {
   @Post('/applicants')
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'cv', maxCount: 1 },
-      { name: 'follow', maxCount: 1 },
-    ]),
-    new ZodInterceptor(createVolApplSchema),
+    FileInterceptor('cv'),
+    new ZodInterceptor(createCareerApplSchema),
   )
-  async createVolAppl(
-    @Body() body: CreateVolApplDto,
-    @UploadedFiles()
-    files: {
-      cv?: Express.Multer.File[];
-      follow?: Express.Multer.File[];
-    },
+  async createCarAppl(
+    @Body() body: CreateCareerApplDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.CREATED,
-        data: await this.volunteersService.createVolAppl(body, files),
+        data: await this.careersService.createCarAppl(body, file),
       };
     } catch (error) {
       throw error;
@@ -168,15 +161,15 @@ export class VolunteersController {
   @UseGuards(AdminGuard)
   @Patch('/applicants')
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ZodValidationPipe(updateVolApplSchema))
-  async updateVolAppl(
-    @Body() body: UpdateVolApplDto,
+  @UsePipes(new ZodValidationPipe(updateCarApplSchema))
+  async updateCarAppl(
+    @Body() body: UpdateCarApplDto,
   ): Promise<SuccessResponse> {
     try {
       return {
         success: true,
         status_code: HttpStatus.OK,
-        data: await this.volunteersService.updateVolAppl(body),
+        data: await this.careersService.updateCarAppl(body),
       };
     } catch (error) {
       throw error;

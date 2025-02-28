@@ -7,8 +7,8 @@ export type DocsQuery = {
 };
 
 export const createDocSchema = z.object({
-  pillar_id: z.string(),
-  sub_pillar_id: z.string(),
+  pillar_id: z.string().optional(),
+  sub_pillar_id: z.string().optional(),
   title: z.string(),
   by: z.string(),
 });
@@ -21,7 +21,7 @@ export const updateDocSchema = z.object({
   sub_pillar_id: z.string().optional(),
   title: z.string().optional(),
   by: z.string(),
-  is_active: z.boolean().optional(),
+  is_active: z.enum(['true', 'false']).optional(),
 });
 
 export type UpdateDocDto = z.infer<typeof updateDocSchema>;

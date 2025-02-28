@@ -39,6 +39,20 @@ enum EventType {
   paid
 }
 
+enum CareerLocation {
+  onsite
+  remote
+  hybrid
+}
+
+enum CareerType {
+  fulltime
+  parttime
+  freelance
+  contract
+  internship
+}
+
 model Admin {
   id               Int              @id               @default(autoincrement())
   admin_id         String           @unique
@@ -182,6 +196,7 @@ model Pillar {
   event            Event[]
   article          Article[]
   volunteer        Volunteer[]
+  career           Career[]
 
   @@map("pillar")
 }
@@ -204,6 +219,7 @@ model SubPillar {
   event            Event[]
   article          Article[]
   volunteer        Volunteer[]
+  career           Career[]
 
   @@map("sub_pillar")
 }
@@ -212,8 +228,8 @@ model Documentation {
   id               Int              @id               @default(autoincrement())
   doc_id           String           @unique
   slug             String           @unique           
-  pillar_id        String           
-  sub_pillar_id    String           
+  pillar_id        String?           
+  sub_pillar_id    String?           
   title            String
   thumbnail_url    String
   thumbnail_key    String
@@ -226,8 +242,8 @@ model Documentation {
   updated_at       DateTime         @updatedAt
 
   docimg           DocumentationImage[]
-  pillar           Pillar           @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
-  subpillar        SubPillar        @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
+  pillar           Pillar?          @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
+  subpillar        SubPillar?       @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
 
   @@map("documentation")
 }
@@ -348,4 +364,53 @@ model VolunteerApplicant {
   volunteer        Volunteer        @relation(fields: [volunteer_id], references: [volunteer_id], onDelete: Cascade)
 
   @@map("volunteer_applicant")
+}
+
+model Career {
+  id               Int              @id               @default(autoincrement())
+  career_id        String           @unique
+  slug             String           @unique
+  pillar_id        String?           
+  sub_pillar_id    String? 
+  title            String
+  location         CareerLocation
+  type             CareerType
+  requirements     String           @db.Text
+  responsibilities String?          @db.Text
+  is_active        Boolean          @default(true)
+
+  created_by       String         
+  updated_by       String
+
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  pillar           Pillar?          @relation(fields: [pillar_id], references: [pillar_id], onDelete: Cascade)
+  subpillar        SubPillar?       @relation(fields: [sub_pillar_id], references: [sub_pillar_id])
+
+  carappl          CareerApplicant[]
+
+  @@map("career")
+}
+
+model CareerApplicant {
+  id               Int              @id               @default(autoincrement())
+  car_appl_id      String           @unique
+  career_id        String           
+  fullname         String
+  email            String
+  phone_number     String
+  address          String
+  instagram_url    String?
+  portofolio_url   String?
+  cv_url           String
+  cv_key           String
+  is_approved      Boolean          @default(false)
+  approved_by      String?
+
+  uploaded_at      DateTime         @default(now())
+
+  career           Career           @relation(fields: [career_id], references: [career_id], onDelete: Cascade)
+
+  @@map("career_applicant")
 }
