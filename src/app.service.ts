@@ -189,12 +189,14 @@ export class AppService {
       total_volunteers,
       total_partners,
       total_volappls,
+      total_crrappls,
     ] = await this.prisma.$transaction([
       this.prisma.article.count(),
       this.prisma.event.count(),
       this.prisma.volunteer.count(),
       this.prisma.partner.count(),
       this.prisma.volunteerApplicant.count(),
+      this.prisma.careerApplicant.count(),
     ]);
 
     return {
@@ -203,7 +205,7 @@ export class AppService {
       total_volunteers,
       total_partners,
       total_volappls,
-      total_crrappls: 0,
+      total_crrappls,
     };
   }
 
