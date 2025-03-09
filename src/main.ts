@@ -10,8 +10,8 @@ async function bootstrap() {
     exclude: ['/'],
   });
 
-  app.use(json({ limit: '10mb' }));
-  app.use(urlencoded({ extended: true, limit: '10mb' }));
+  app.use(json({ limit: '100mb' }));
+  app.use(urlencoded({ extended: true, limit: '100mb' }));
   app.useGlobalFilters(new GlobalExceptionFilter(app.get(HttpAdapterHost)));
 
   await app.listen(process.env.MODE === 'prod' ? 4002 : 4003);
